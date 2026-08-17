@@ -1,0 +1,19 @@
+{
+  "name": "efood-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EFood full-stack food ordering application",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --env-file-if-exists=.env --watch server.js",
+    "check": "node --check server.js && node --check script.js && node --check admin.js && node --check api/index.js",
+    "telegram:webhook": "node --env-file-if-exists=.env scripts/setup-telegram-webhook.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "@vercel/blob": "^2.8.0"
+  }
+}
