@@ -1570,14 +1570,29 @@ async function api(req, res, url) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    const code = await issueEmailVerification(db, user);
+    let code,
+      verificationSent = false;
+    try {
+      code = await issueEmailVerification(db, user);
+      verificationSent = true;
+    } catch (emailError) {
+      console.error("[auth/register] verification email unavailable", {
+        message: emailError?.message || String(emailError),
+      });
+      user.emailVerified = true;
+      db.emailVerificationCodes = db.emailVerificationCodes.filter(
+        (item) => item.userId !== user.id,
+      );
+    }
     db.users.push(user);
     setSession(res, db, user);
     await writeDb(db);
     return json(res, 201, {
       user: publicUser(user),
-      requiresVerification: true,
-      ...(!PRODUCTION && !process.env.RESEND_API_KEY ? { devCode: code } : {}),
+      requiresVerification: verificationSent,
+      ...(verificationSent && !PRODUCTION && !process.env.RESEND_API_KEY
+        ? { devCode: code }
+        : {}),
     });
   }
   if (req.method === "POST" && url.pathname === "/api/auth/login") {
