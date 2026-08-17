@@ -81,8 +81,14 @@ async function readDb() {
   if (sql) {
     const rows = await sql`SELECT data FROM efood_state WHERE id=1`;
     if (rows[0]?.data) return normalizeDb(rows[0].data);
-    ensureDb();
-    const seed = normalizeDb(JSON.parse(fs.readFileSync(DB_FILE, "utf8")));
+    let seed = initialDb();
+    if (fs.existsSync(DB_FILE)) {
+      try {
+        seed = normalizeDb(JSON.parse(fs.readFileSync(DB_FILE, "utf8")));
+      } catch {
+        seed = initialDb();
+      }
+    }
     await sql`INSERT INTO efood_state (id,data) VALUES (1,${JSON.stringify(seed)}::jsonb) ON CONFLICT (id) DO NOTHING`;
     return seed;
   }
