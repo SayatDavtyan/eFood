@@ -1576,7 +1576,7 @@ async function api(req, res, url) {
       code = await issueEmailVerification(db, user);
       verificationSent = true;
     } catch (emailError) {
-      console.error("[auth/register] verification email unavailable", {
+      console.warn("[auth/register] verification email unavailable", {
         message: emailError?.message || String(emailError),
       });
       user.emailVerified = true;
